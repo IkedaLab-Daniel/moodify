@@ -3,7 +3,11 @@ from flask_cors import CORS
 from model import analyze_sentiment, moodify_text
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, origins=[
+    "https://moodify-dev.netlify.app/",
+    "http://localhost:3000",  # For local development
+    "http://localhost:5173"   # For Vite dev server
+])
 
 @app.route("/predict", methods=["POST"])
 def predict():
