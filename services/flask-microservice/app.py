@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from model import analyze_sentiment, moodify_text
+from model import analyze_sentiment, moodify_text, EmotionAnalyzer
 
 app = Flask(__name__)
 # CORS(app, origins=[
@@ -9,6 +9,8 @@ app = Flask(__name__)
 #     "http://localhost:3000",  # For local development
 #     "http://localhost:5173"   # For Vite dev server
 # ])
+
+analyzer = EmotionAnalyzer()
 
 CORS(app, origins="*")
 
@@ -41,6 +43,17 @@ def moodify():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": f"Moodification failed: {str(e)}"}), 500
+
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    data = request.json
+    if 'text' not in data:
+        return jsonify({"error": "Missing 'text' field"}), 400
+    
+    text = data['text']
+    result = analyzer.analyze_emotion(text)
+    return jsonify(result)
+
 
 @app.route("/", methods=["GET"])
 def health():
