@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  # React Client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_MAIN_SERVER_URL=http://localhost:8000
+      - REACT_APP_FLASK_SERVICE_URL=http://localhost:5000
+      - REACT_APP_EXPRESS_SERVICE_URL=http://localhost:3001
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - main-server
+      - flask-microservice
+      - express-microservice
+
+  # Django Main Server
+  main-server:
+    build:
+      context: ./services/main-server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=your-secret-key-here
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/moodify_main
+      - FLASK_SERVICE_URL=http://flask-microservice:5000
+      - EXPRESS_SERVICE_URL=http://express-microservice:3001
+    volumes:
+      - ./services/main-server:/app
+    depends_on:
+      - postgres
+      - redis
+
+  # Flask Microservice
+  flask-microservice:
+    build:
+      context: ./services/flask-microservice
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/moodify_flask
+      - MAIN_SERVER_URL=http://main-server:8000
+    volumes:
+      - ./services/flask-microservice:/app
+    depends_on:
+      - postgres
+
+  # Express + MongoDB Microservice
+  express-microservice:
+    build:
+      context: ./services/express-microservice
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/moodify_express
+      - JWT_SECRET=your-jwt-secret-here
+      - MAIN_SERVER_URL=http://main-server:8000
+    volumes:
+      - ./services/express-microservice:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_MULTIPLE_DATABASES=moodify_main,moodify_flask
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+
+  # MongoDB
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./docker/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Nginx (API Gateway/Load Balancer)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - client
+      - main-server
+      - flask-microservice
+      - express-microservice
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
+
+networks:
+  default:
+    driver: bridge
