@@ -121,13 +121,13 @@ Transformed text:"""
         )
         
         # ! Debug: Print the full response for inspection
-        print("=== OpenRouter API Response ===")
-        print(f"Full response object: {response}\n")
-        print(f"Response type: {type(response)}\n")
-        print(f"Response choices: {response.choices}\n")
-        print(f"Message content: {response.choices[0].message.content}\n")
-        print(f"Usage info: {getattr(response, 'usage', 'No usage info')}")
-        print("===============================")
+        # print("=== OpenRouter API Response ===")
+        # print(f"Full response object: {response}\n")
+        # print(f"Response type: {type(response)}\n")
+        # print(f"Response choices: {response.choices}\n")
+        # print(f"Message content: {response.choices[0].message.content}\n")
+        # print(f"Usage info: {getattr(response, 'usage', 'No usage info')}")
+        # print("===============================")
         
         modified_text = response.choices[0].message.content.strip()
         
