@@ -1,10 +1,6 @@
 Flask==3.0.0
-Flask-RESTful==0.3.10
-Flask-CORS==4.0.0
-Flask-SQLAlchemy==3.1.1
-Flask-Migrate==4.0.5
-python-decouple==3.8
-psycopg2-binary==2.9.9
-marshmallow==3.20.1
+flask-cors==4.0.0
+textblob==0.17.1
+openai==1.50.0
+python-dotenv==1.0.0
 gunicorn==21.2.0
-requests==2.31.0
