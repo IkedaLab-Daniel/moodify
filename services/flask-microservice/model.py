@@ -258,9 +258,20 @@ class EmotionAnalyzer:
         with torch.no_grad():
             outputs = self.model(**inputs)
         probs = softmax(outputs.logits, dim=1)[0]
-        
-        return {
+
+        emotion_scores = {
             self.labels[i]: round(float(probs[i]), 4)
             for i in range(len(probs))
-            if float(probs[i]) > 0.01  # Filter small values
+            if float(probs[i]) > 0.01
+        }
+
+        # Identify dominant emotion
+        dominant_idx = torch.argmax(probs).item()
+        dominant_emotion = self.labels[dominant_idx]
+        confidence = round(float(probs[dominant_idx]), 4)
+
+        return {
+            "emotions": emotion_scores,
+            "dominant_emotion": dominant_emotion,
+            "confidence": confidence
         }
