@@ -1,6 +1,6 @@
 Flask==3.0.0
 flask-cors==4.0.0
 textblob==0.17.1
-openai==1.54.4
+openai==1.97.1
 python-dotenv==1.0.0
 gunicorn==21.2.0
