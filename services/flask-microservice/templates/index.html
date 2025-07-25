@@ -233,6 +233,18 @@
                 <div id="analyze-result" class="result" style="display: none;"></div>
             </div>
             
+            <!-- Lightweight Emotion Analysis Test -->
+            <div class="test-form">
+                <h4>⚡ Lightweight Emotion Analysis (/analyze-light)</h4>
+                <p style="color: #28a745; font-size: 12px; margin: 0 0 10px 0;">🚀 Optimized for Render free tier - Uses VADER sentiment analysis (5MB vs 500MB)</p>
+                <div class="form-group">
+                    <label for="analyze-light-text">Text to analyze:</label>
+                    <textarea id="analyze-light-text" placeholder="Enter text for lightweight emotion analysis...">I'm feeling really anxious about tomorrow's presentation.</textarea>
+                </div>
+                <button class="test-btn" onclick="testAnalyzeLight()">Analyze Emotions (Light)</button>
+                <div id="analyze-light-result" class="result" style="display: none;"></div>
+            </div>
+            
             <!-- Moodify Test -->
             <div class="test-form">
                 <h4>🔄 Text Moodification (/moodify)</h4>
@@ -312,6 +324,18 @@
             showLoading('analyze-result');
             const result = await makeAPICall('/analyze', { text });
             showResult('analyze-result', result.success, result.data);
+        }
+        
+        async function testAnalyzeLight() {
+            const text = document.getElementById('analyze-light-text').value.trim();
+            if (!text) {
+                alert('Please enter some text to analyze');
+                return;
+            }
+            
+            showLoading('analyze-light-result');
+            const result = await makeAPICall('/analyze-light', { text });
+            showResult('analyze-light-result', result.success, result.data);
         }
         
         async function testMoodify() {
