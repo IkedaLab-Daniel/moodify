@@ -1,0 +1,10 @@
+Flask==3.0.0
+flask-cors==4.0.0
+textblob==0.17.1
+openai==1.97.1
+python-dotenv==1.0.0
+gunicorn==21.2.0
+# Use CPU-only PyTorch for smaller deployment
+torch==2.7.1+cpu --index-url https://download.pytorch.org/whl/cpu
+# Use sentence-transformers instead of direct transformers/tokenizers
+sentence-transformers==2.7.0

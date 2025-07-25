@@ -6,4 +6,3 @@ python-dotenv==1.0.0
 gunicorn==21.2.0
 torch==2.7.1
 transformers==4.45.0
-tokenizers==0.20.0
