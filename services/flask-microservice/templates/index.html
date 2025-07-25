@@ -167,8 +167,17 @@
         <h1>{{ emoji }} {{ service_name }}</h1>
         <p class="status"><strong>Status:</strong> {{ status }}</p>
         
+        {% if model_status %}
+        <div class="wake-up">
+            <strong>🤖 Available Models:</strong><br>
+            {% for model in model_status %}
+            {{ model }}<br>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         <div class="tech-note">
-            ✅ <strong>BERT Upgrade Complete!</strong> Now featuring advanced emotion analysis with 28 emotion categories via the /analyze endpoint
+            ✅ <strong>Memory Optimized!</strong> New /analyze-light endpoint uses VADER sentiment for low-memory environments (perfect for Render free tier)
         </div>
 
         <div class="wake-up">
@@ -186,6 +195,9 @@
                 {{ endpoint.description }}
                 {% if endpoint.body %}
                 <br><strong>Body:</strong> {{ endpoint.body }}
+                {% endif %}
+                {% if endpoint.note %}
+                <br><span style="color: #28a745; font-weight: bold;">{{ endpoint.note }}</span>
                 {% endif %}
             </div>
         </div>
