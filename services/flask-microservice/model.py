@@ -5,6 +5,10 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
+from torch.nn.functional import softmax
+
 # Load environment variables
 load_dotenv()
 
@@ -241,3 +245,33 @@ def fallback_word_replacement(text, target_sentiment, original_sentiment, error_
         "success": success,
         "message": f"Used fallback method. Result: {new_sentiment} sentiment"
     }
+
+class EmotionAnalyzer:
+    def __init__(self):
+        model_name = "bhadresh-savani/bert-base-go-emotion"
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        self.labels = self.model.config.id2label
+
+    def analyze_emotion(self, text):
+        inputs = self.tokenizer(text, return_tensors="pt", truncation=True)
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+        probs = softmax(outputs.logits, dim=1)[0]
+
+        emotion_scores = {
+            self.labels[i]: round(float(probs[i]), 4)
+            for i in range(len(probs))
+            if float(probs[i]) > 0.01
+        }
+
+        # Identify dominant emotion
+        dominant_idx = torch.argmax(probs).item()
+        dominant_emotion = self.labels[dominant_idx]
+        confidence = round(float(probs[dominant_idx]), 4)
+
+        return {
+            "emotions": emotion_scores,
+            "dominant_emotion": dominant_emotion,
+            "confidence": confidence
+        }

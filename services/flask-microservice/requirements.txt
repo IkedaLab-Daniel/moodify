@@ -4,3 +4,5 @@ textblob==0.17.1
 openai==1.97.1
 python-dotenv==1.0.0
 gunicorn==21.2.0
+torch==2.7.1
+transformers==4.35.0
