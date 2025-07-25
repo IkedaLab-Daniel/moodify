@@ -84,6 +84,82 @@
             font-size: 13px;
             border-left: 3px solid #ffc107;
         }
+        .test-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .test-form {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .test-btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .test-btn:hover {
+            background: #0056b3;
+        }
+        .test-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            color: #6c757d;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -118,9 +194,130 @@
         <h3>Example Usage:</h3>
         <pre class="example">{{ example_curl }}</pre>
         
+        <!-- API Testing Section -->
+        <div class="test-section">
+            <h2>🧪 Test API Endpoints</h2>
+            <p>Try out the API endpoints directly from this page:</p>
+            
+            <!-- Sentiment Analysis Test -->
+            <div class="test-form">
+                <h4>📊 Sentiment Analysis (/predict)</h4>
+                <div class="form-group">
+                    <label for="predict-text">Text to analyze:</label>
+                    <textarea id="predict-text" placeholder="Enter text to analyze sentiment...">I love this amazing product!</textarea>
+                </div>
+                <button class="test-btn" onclick="testPredict()">Analyze Sentiment</button>
+                <div id="predict-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Emotion Analysis Test -->
+            <div class="test-form">
+                <h4>🎭 Advanced Emotion Analysis (/analyze)</h4>
+                <div class="form-group">
+                    <label for="analyze-text">Text to analyze:</label>
+                    <textarea id="analyze-text" placeholder="Enter text for emotion analysis...">I'm so excited about this new opportunity!</textarea>
+                </div>
+                <button class="test-btn" onclick="testAnalyze()">Analyze Emotions</button>
+                <div id="analyze-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Moodify Test -->
+            <div class="test-form">
+                <h4>🔄 Text Moodification (/moodify)</h4>
+                <div class="form-group">
+                    <label for="moodify-text">Text to transform:</label>
+                    <textarea id="moodify-text" placeholder="Enter text to transform...">This is terrible news.</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="target-sentiment">Target sentiment:</label>
+                    <select id="target-sentiment">
+                        <option value="positive">Positive</option>
+                        <option value="negative">Negative</option>
+                        <option value="neutral">Neutral</option>
+                    </select>
+                </div>
+                <button class="test-btn" onclick="testMoodify()">Transform Text</button>
+                <div id="moodify-result" class="result" style="display: none;"></div>
+            </div>
+        </div>
+        
         <footer>
             Powered by {{ tech_stack }}
         </footer>
     </div>
+    
+    <script>
+        async function makeAPICall(endpoint, data) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                return { success: response.ok, data: result };
+            } catch (error) {
+                return { success: false, data: { error: error.message } };
+            }
+        }
+        
+        function showResult(elementId, isSuccess, data) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.className = 'result ' + (isSuccess ? 'success' : 'error');
+            resultDiv.textContent = JSON.stringify(data, null, 2);
+            resultDiv.style.display = 'block';
+        }
+        
+        function showLoading(elementId) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = 'Loading...';
+            resultDiv.style.display = 'block';
+        }
+        
+        async function testPredict() {
+            const text = document.getElementById('predict-text').value.trim();
+            if (!text) {
+                alert('Please enter some text to analyze');
+                return;
+            }
+            
+            showLoading('predict-result');
+            const result = await makeAPICall('/predict', { text });
+            showResult('predict-result', result.success, result.data);
+        }
+        
+        async function testAnalyze() {
+            const text = document.getElementById('analyze-text').value.trim();
+            if (!text) {
+                alert('Please enter some text to analyze');
+                return;
+            }
+            
+            showLoading('analyze-result');
+            const result = await makeAPICall('/analyze', { text });
+            showResult('analyze-result', result.success, result.data);
+        }
+        
+        async function testMoodify() {
+            const text = document.getElementById('moodify-text').value.trim();
+            const targetSentiment = document.getElementById('target-sentiment').value;
+            
+            if (!text) {
+                alert('Please enter some text to transform');
+                return;
+            }
+            
+            showLoading('moodify-result');
+            const result = await makeAPICall('/moodify', { 
+                text, 
+                target_sentiment: targetSentiment 
+            });
+            showResult('moodify-result', result.success, result.data);
+        }
+    </script>
 </body>
 </html>
