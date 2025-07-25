@@ -1,0 +1,10 @@
+Flask==3.0.0
+flask-cors==4.0.0
+textblob==0.17.1
+openai==1.97.1
+python-dotenv==1.0.0
+gunicorn==21.2.0
+# Lighter alternatives that don't require Rust compilation
+vaderSentiment==3.3.2
+# Or use sentence-transformers with specific models
+sentence-transformers==2.7.0
