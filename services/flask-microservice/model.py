@@ -15,13 +15,29 @@ except ImportError:
     HEAVY_MODELS_AVAILABLE = False
     print("Warning: Heavy models not available, using lightweight alternatives")
 
-# Import lightweight alternatives
+# Import lightweight alternatives with multiple fallback methods
+VADER_AVAILABLE = False
+SentimentIntensityAnalyzer = None
+
+# Try multiple ways to import VADER
 try:
     from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
     VADER_AVAILABLE = True
+    print("✅ VADER sentiment imported successfully (method 1)")
 except ImportError:
-    VADER_AVAILABLE = False
-    print("Warning: VADER sentiment not available")
+    try:
+        from vaderSentiment import SentimentIntensityAnalyzer
+        VADER_AVAILABLE = True
+        print("✅ VADER sentiment imported successfully (method 2)")
+    except ImportError:
+        try:
+            import vaderSentiment
+            SentimentIntensityAnalyzer = vaderSentiment.SentimentIntensityAnalyzer
+            VADER_AVAILABLE = True
+            print("✅ VADER sentiment imported successfully (method 3)")
+        except (ImportError, AttributeError):
+            VADER_AVAILABLE = False
+            print("Warning: VADER sentiment not available after trying multiple import methods")
 
 # Load environment variables
 load_dotenv()

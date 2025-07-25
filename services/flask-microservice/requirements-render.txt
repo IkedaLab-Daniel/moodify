@@ -4,4 +4,5 @@ textblob==0.17.1
 openai==1.97.1
 python-dotenv==1.0.0
 gunicorn==21.2.0
-vaderSentiment==3.3.2
+# Try different VADER package names/versions
+vaderSentiment>=3.3.0
