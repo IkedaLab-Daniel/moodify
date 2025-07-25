@@ -73,7 +73,13 @@ def health():
             {
                 "method": "POST",
                 "path": "/predict",
-                "description": "Analyze text sentiment",
+                "description": "Analyze text sentiment with confidence scores",
+                "body": '{"text": "your text here"}'
+            },
+            {
+                "method": "POST",
+                "path": "/analyze",
+                "description": "✨ Advanced emotion analysis using BERT (28 emotion categories)",
                 "body": '{"text": "your text here"}'
             },
             {
@@ -83,10 +89,10 @@ def health():
                 "body": '{"text": "your text", "target_sentiment": "positive|negative|neutral"}'
             }
         ],
-        "example_curl": """curl -X POST https://moodify-tk9p.onrender.com/predict \\
+        "example_curl": """curl -X POST https://moodify-tk9p.onrender.com/analyze \\
   -H "Content-Type: application/json" \\
-  -d '{"text": "I love this amazing day!"}'""",
-        "tech_stack": "Flask • TextBlob • OpenRouter AI"
+  -d '{"text": "I am so excited about this new opportunity!"}'""",
+        "tech_stack": "Flask • TextBlob • BERT • OpenRouter AI"
     }
     
     return render_template('index.html', **template_data)

@@ -91,6 +91,10 @@
         <h1>{{ emoji }} {{ service_name }}</h1>
         <p class="status"><strong>Status:</strong> {{ status }}</p>
         
+        <div class="tech-note">
+            ✅ <strong>BERT Upgrade Complete!</strong> Now featuring advanced emotion analysis with 28 emotion categories via the /analyze endpoint
+        </div>
+
         <div class="wake-up">
             <strong>💡 Use this endpoint to wake up server</strong><br>
             Perfect for keeping Render free tier active
@@ -115,10 +119,7 @@
         <pre class="example">{{ example_curl }}</pre>
         
         <footer>
-            Currently powered by {{ tech_stack }}
-            <div class="tech-note">
-                🚀 <strong>Roadmap:</strong> Upgrading to BERT model for improved accuracy after other services are completed
-            </div>
+            Powered by {{ tech_stack }}
         </footer>
     </div>
 </body>
