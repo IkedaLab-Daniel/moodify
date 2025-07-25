@@ -5,6 +5,7 @@ A Flask-based microservice for sentiment analysis and text mood transformation u
 ## 🚀 Features
 
 - **Sentiment Analysis**: Analyze text sentiment with confidence scores
+- **Advanced Emotion Analysis**: BERT-powered multi-emotion detection with 28 emotion categories
 - **Text Moodification**: Transform text to target sentiment (positive/negative/neutral)
 - **AI-Powered**: Uses OpenRouter AI with DeepSeek model for natural transformations
 - **Fallback System**: TextBlob-based fallback when AI is unavailable
@@ -34,6 +35,30 @@ Analyze sentiment of provided text.
     "negative": 0.0,
     "neutral": 0.2
   }
+}
+```
+
+### `POST /analyze` ✨ NEW
+Advanced emotion analysis using BERT model with 28 emotion categories.
+
+**Request:**
+```json
+{
+  "text": "I'm so excited about this new opportunity!"
+}
+```
+
+**Response:**
+```json
+{
+  "emotions": {
+    "excitement": 0.8234,
+    "joy": 0.1234,
+    "optimism": 0.0456,
+    "gratitude": 0.0076
+  },
+  "dominant_emotion": "excitement",
+  "confidence": 0.8234
 }
 ```
 
@@ -114,6 +139,8 @@ python app.py
 
 - **Flask**: Web framework
 - **TextBlob**: Sentiment analysis library
+- **BERT**: Advanced emotion analysis with 28 emotion categories
+- **Transformers**: Hugging Face transformers library
 - **OpenRouter AI**: Advanced text transformation
 - **Gunicorn**: WSGI HTTP Server
 - **Docker**: Containerization
@@ -124,4 +151,10 @@ Visit `http://localhost:5000/` for service status and API documentation.
 
 ## 📈 Roadmap
 
-- [ ] Upgrade to BERT model for improved accuracy
+- [x] ~~Upgrade to BERT model for improved accuracy~~ ✅ **COMPLETED!**
+  - Added `/analyze` endpoint with BERT-based emotion detection
+  - 28 emotion categories including joy, anger, fear, surprise, sadness, and more
+  - Higher accuracy and granular emotion insights
+- [ ] Add batch processing for multiple texts
+- [ ] Implement emotion trend analysis over time
+- [ ] Add support for multilingual emotion detection
