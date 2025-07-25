@@ -167,8 +167,17 @@
         <h1>{{ emoji }} {{ service_name }}</h1>
         <p class="status"><strong>Status:</strong> {{ status }}</p>
         
+        {% if model_status %}
+        <div class="wake-up">
+            <strong>🤖 Available Models:</strong><br>
+            {% for model in model_status %}
+            {{ model }}<br>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         <div class="tech-note">
-            ✅ <strong>BERT Upgrade Complete!</strong> Now featuring advanced emotion analysis with 28 emotion categories via the /analyze endpoint
+            ✅ <strong>Memory Optimized!</strong> New /analyze-light endpoint uses VADER sentiment for low-memory environments (perfect for Render free tier)
         </div>
 
         <div class="wake-up">
@@ -186,6 +195,9 @@
                 {{ endpoint.description }}
                 {% if endpoint.body %}
                 <br><strong>Body:</strong> {{ endpoint.body }}
+                {% endif %}
+                {% if endpoint.note %}
+                <br><span style="color: #28a745; font-weight: bold;">{{ endpoint.note }}</span>
                 {% endif %}
             </div>
         </div>
@@ -219,6 +231,18 @@
                 </div>
                 <button class="test-btn" onclick="testAnalyze()">Analyze Emotions</button>
                 <div id="analyze-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Lightweight Emotion Analysis Test -->
+            <div class="test-form">
+                <h4>⚡ Lightweight Emotion Analysis (/analyze-light)</h4>
+                <p style="color: #28a745; font-size: 12px; margin: 0 0 10px 0;">🚀 Optimized for Render free tier - Uses VADER sentiment analysis (5MB vs 500MB)</p>
+                <div class="form-group">
+                    <label for="analyze-light-text">Text to analyze:</label>
+                    <textarea id="analyze-light-text" placeholder="Enter text for lightweight emotion analysis...">I'm feeling really anxious about tomorrow's presentation.</textarea>
+                </div>
+                <button class="test-btn" onclick="testAnalyzeLight()">Analyze Emotions (Light)</button>
+                <div id="analyze-light-result" class="result" style="display: none;"></div>
             </div>
             
             <!-- Moodify Test -->
@@ -300,6 +324,18 @@
             showLoading('analyze-result');
             const result = await makeAPICall('/analyze', { text });
             showResult('analyze-result', result.success, result.data);
+        }
+        
+        async function testAnalyzeLight() {
+            const text = document.getElementById('analyze-light-text').value.trim();
+            if (!text) {
+                alert('Please enter some text to analyze');
+                return;
+            }
+            
+            showLoading('analyze-light-result');
+            const result = await makeAPICall('/analyze-light', { text });
+            showResult('analyze-light-result', result.success, result.data);
         }
         
         async function testMoodify() {

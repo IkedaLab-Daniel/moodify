@@ -5,9 +5,23 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
-from torch.nn.functional import softmax
+# Try to import heavy models, but fallback gracefully
+try:
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+    import torch
+    from torch.nn.functional import softmax
+    HEAVY_MODELS_AVAILABLE = True
+except ImportError:
+    HEAVY_MODELS_AVAILABLE = False
+    print("Warning: Heavy models not available, using lightweight alternatives")
+
+# Import lightweight alternatives
+try:
+    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+    VADER_AVAILABLE = True
+except ImportError:
+    VADER_AVAILABLE = False
+    print("Warning: VADER sentiment not available")
 
 # Load environment variables
 load_dotenv()
@@ -248,6 +262,9 @@ def fallback_word_replacement(text, target_sentiment, original_sentiment, error_
 
 class EmotionAnalyzer:
     def __init__(self):
+        if not HEAVY_MODELS_AVAILABLE:
+            raise ImportError("Heavy models (transformers, torch) not available. Use LightweightEmotionAnalyzer instead.")
+        
         model_name = "bhadresh-savani/bert-base-go-emotion"
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
@@ -274,4 +291,101 @@ class EmotionAnalyzer:
             "emotions": emotion_scores,
             "dominant_emotion": dominant_emotion,
             "confidence": confidence
+        }
+
+
+class LightweightEmotionAnalyzer:
+    """
+    A lightweight emotion analyzer that uses VADER sentiment analysis
+    and maps it to common emotion categories. Uses much less memory than BERT models.
+    """
+    
+    def __init__(self):
+        if not VADER_AVAILABLE:
+            raise ImportError("VADER sentiment not available. Install with: pip install vaderSentiment")
+        
+        self.analyzer = SentimentIntensityAnalyzer()
+        
+        # Map VADER scores to emotion categories
+        self.emotion_mapping = {
+            'positive_high': ['joy', 'excitement', 'love', 'pride', 'optimism'],
+            'positive_medium': ['approval', 'admiration', 'amusement', 'gratitude'],
+            'positive_low': ['caring', 'relief', 'curiosity'],
+            'neutral': ['neutral', 'realization', 'confusion'],
+            'negative_low': ['disappointment', 'embarrassment', 'nervousness'],
+            'negative_medium': ['disapproval', 'annoyance', 'fear', 'sadness'],
+            'negative_high': ['anger', 'disgust', 'grief', 'remorse']
+        }
+    
+    def analyze_emotion(self, text):
+        """
+        Analyze emotion using VADER sentiment and map to emotion categories
+        Returns format similar to BERT model for compatibility
+        """
+        scores = self.analyzer.polarity_scores(text)
+        
+        compound = scores['compound']
+        pos = scores['pos']
+        neg = scores['neg']
+        neu = scores['neu']
+        
+        # Determine emotion category based on compound score and intensity
+        if compound >= 0.5:
+            category = 'positive_high'
+            primary_emotions = self.emotion_mapping['positive_high']
+        elif compound >= 0.1:
+            category = 'positive_medium'
+            primary_emotions = self.emotion_mapping['positive_medium']
+        elif compound >= -0.1:
+            if pos > neg:
+                category = 'positive_low'
+                primary_emotions = self.emotion_mapping['positive_low']
+            else:
+                category = 'neutral'
+                primary_emotions = self.emotion_mapping['neutral']
+        elif compound >= -0.5:
+            category = 'negative_medium'
+            primary_emotions = self.emotion_mapping['negative_medium']
+        else:
+            category = 'negative_high'
+            primary_emotions = self.emotion_mapping['negative_high']
+        
+        # Create emotion scores similar to BERT output
+        emotion_scores = {}
+        
+        # Add primary emotions from the determined category
+        for emotion in primary_emotions:
+            if category.startswith('positive'):
+                emotion_scores[emotion] = round(pos * (0.8 + 0.2 * abs(compound)), 4)
+            elif category.startswith('negative'):
+                emotion_scores[emotion] = round(neg * (0.8 + 0.2 * abs(compound)), 4)
+            else:
+                emotion_scores[emotion] = round(neu * 0.8, 4)
+        
+        # Add neutral if significant
+        if neu > 0.3:
+            emotion_scores['neutral'] = round(neu, 4)
+        
+        # Filter out very low scores
+        emotion_scores = {k: v for k, v in emotion_scores.items() if v > 0.05}
+        
+        # Determine dominant emotion
+        if emotion_scores:
+            dominant_emotion = max(emotion_scores, key=emotion_scores.get)
+            confidence = emotion_scores[dominant_emotion]
+        else:
+            dominant_emotion = 'neutral'
+            confidence = 0.5
+        
+        return {
+            "emotions": emotion_scores,
+            "dominant_emotion": dominant_emotion,
+            "confidence": confidence,
+            "vader_scores": {
+                "compound": compound,
+                "positive": pos,
+                "negative": neg,
+                "neutral": neu
+            },
+            "analysis_type": "lightweight_vader"
         }
