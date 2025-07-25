@@ -4,7 +4,7 @@ textblob==0.17.1
 openai==1.97.1
 python-dotenv==1.0.0
 gunicorn==21.2.0
-# Lighter alternatives that don't require Rust compilation
+# Lightweight emotion analysis - only 5MB RAM usage
 vaderSentiment==3.3.2
-# Or use sentence-transformers with specific models
-sentence-transformers==2.7.0
+# Note: Heavy models (torch, transformers) are intentionally excluded
+# This prevents Render from trying to install 500MB+ dependencies

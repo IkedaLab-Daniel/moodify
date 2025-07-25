@@ -1,6 +1,11 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from model import analyze_sentiment, moodify_text, EmotionAnalyzer, LightweightEmotionAnalyzer
+import os
+from model import analyze_sentiment, moodify_text, LightweightEmotionAnalyzer
+
+# Check if we should disable heavy models (for deployment)
+DISABLE_HEAVY_MODELS = os.getenv('DISABLE_HEAVY_MODELS', 'false').lower() == 'true'
+LIGHTWEIGHT_ONLY = os.getenv('LIGHTWEIGHT_ONLY', 'false').lower() == 'true'
 
 app = Flask(__name__)
 # CORS(app, origins=[
@@ -10,14 +15,21 @@ app = Flask(__name__)
 #     "http://localhost:5173"   # For Vite dev server
 # ])
 
-# Initialize analyzers with fallback logic
-try:
-    analyzer = EmotionAnalyzer()
-    heavy_model_available = True
-    print("✅ Heavy BERT model loaded successfully")
-except Exception as e:
-    heavy_model_available = False
-    print(f"⚠️  Heavy model failed to load: {e}")
+# Initialize analyzers with environment-controlled loading
+heavy_model_available = False
+analyzer = None
+
+if not DISABLE_HEAVY_MODELS and not LIGHTWEIGHT_ONLY:
+    try:
+        from model import EmotionAnalyzer
+        analyzer = EmotionAnalyzer()
+        heavy_model_available = True
+        print("✅ Heavy BERT model loaded successfully")
+    except Exception as e:
+        heavy_model_available = False
+        print(f"⚠️  Heavy model failed to load: {e}")
+else:
+    print("🚀 Heavy models disabled via environment variable (DISABLE_HEAVY_MODELS=true or LIGHTWEIGHT_ONLY=true)")
 
 try:
     lightweight_analyzer = LightweightEmotionAnalyzer()
