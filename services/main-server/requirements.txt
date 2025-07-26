@@ -9,3 +9,6 @@ gunicorn==21.2.0
 whitenoise==6.6.0
 Pillow==10.1.0
 requests==2.31.0
+djoser==2.2.0
+djangorestframework-simplejwt==5.3.0
+python-dotenv==1.0.0
