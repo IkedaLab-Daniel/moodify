@@ -123,7 +123,7 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in development
 CORS_ALLOW_CREDENTIALS = True
 
 # Microservices URLs
-FLASK_MICROSERVICE_URL = os.getenv('FLASK_MICROSERVICE_URL', 'http://localhost:5000')
+FLASK_MICROSERVICE_URL = os.getenv('FLASK_MICROSERVICE_URL', 'http://127.0.0.1:5000')
 EXPRESS_MICROSERVICE_URL = os.getenv('EXPRESS_MICROSERVICE_URL', 'http://localhost:3001')
 
 # Logging
