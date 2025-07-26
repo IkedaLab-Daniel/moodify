@@ -7,8 +7,14 @@ urlpatterns = [
     # Health check endpoint
     path('health/', views.health_check, name='health_check'),
     
+    # Simple Django view (non-DRF) for testing
+    path('simple-health/', views.simple_health_check, name='simple_health_check'),
+    
+    # Simple test endpoint
+    path('test/', views.test_endpoint, name='test_endpoint'),
+    
     # Flask microservice endpoints - simplified and mapped to actual Flask endpoints
-    path('sentiment/', views.SentimentAnalysisView.as_view(), name='sentiment_analysis'),
+    path('sentiment/', views.SentimentAnalysisView.as_view(), name='sentiment_analy sis'),
     path('predict/', views.SentimentAnalysisView.as_view(), name='predict'),  # Direct mapping to Flask
     
     path('emotion/', views.EmotionAnalysisView.as_view(), name='emotion_analysis'),
@@ -19,7 +25,7 @@ urlpatterns = [
     
     path('moodify/', views.MoodifyView.as_view(), name='moodify'),  # Direct mapping to Flask
     
-    path('flask-health/', views.FlaskHealthView.as_view(), name='flask_health'),
+    path('flask-health/', views.flask_health_check, name='flask_health'),
     
     # Legacy endpoints for backward compatibility
     path('mood/', views.mood_proxy, name='mood_proxy'),
