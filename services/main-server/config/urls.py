@@ -18,15 +18,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.core.views import status_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # Authentication endpoints (Djoser)
+    # Main status endpoint
+    path('', status_view, name='root_status'),
+    
+    # Authentication endpoints (Djoser) - available but not required for basic usage
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.jwt')),
     
-    # API Gateway endpoints
+    # API Gateway endpoints - main functionality, no auth required
     path('api/', include('apps.api.urls')),
     
     # Core app endpoints
