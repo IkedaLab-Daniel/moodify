@@ -21,15 +21,58 @@ def check_service_health(service_url):
 
 @api_view(['GET'])
 def health_check(request):
-    """API Gateway health check endpoint"""
+    """Homepage endpoint displaying Django API Gateway information"""
     return Response({
+        "app_name": "Moodify API Gateway",
+        "version": "1.0.0",
         "status": "healthy",
-        "service": "Django API Gateway",
-        "message": "🚀 Moodify API Gateway is running!",
-        "endpoints": {
-            "sentiment_analysis": "/sentiment/",
-            "express_service": "/express/",
-            "gateway_status": "/status/"
+        "description": "Django-based API Gateway for the Moodify application - A microservices architecture for sentiment analysis and mood tracking",
+        "message": "🚀 Welcome to Moodify API Gateway!",
+        "features": [
+            "Sentiment Analysis Routing",
+            "Microservice Health Monitoring", 
+            "Request Proxying",
+            "Error Handling & Logging"
+        ],
+        "architecture": {
+            "framework": "Django REST Framework",
+            "pattern": "API Gateway",
+            "connected_services": ["Flask Microservice", "Express Microservice (planned)"]
+        },
+        "available_endpoints": {
+            "health_check": {
+                "path": "/",
+                "method": "GET",
+                "description": "Homepage and health status"
+            },
+            "gateway_status": {
+                "path": "/status/",
+                "method": "GET", 
+                "description": "Status of all connected microservices"
+            },
+            "sentiment_analysis": {
+                "predict": "/sentiment/predict/",
+                "analyze": "/sentiment/analyze/",
+                "analyze_light": "/sentiment/analyze-light/",
+                "moodify": "/sentiment/moodify/"
+            },
+            "express_service": {
+                "health": "/express/health/"
+            }
+        },
+        "microservices": {
+            "flask_microservice": {
+                "purpose": "Sentiment analysis using VADER, TextBlob, and BERT models",
+                "endpoints": ["predict", "analyze", "analyze-light", "moodify"]
+            },
+            "express_microservice": {
+                "purpose": "Planned for additional functionality",
+                "status": "In development"
+            }
+        },
+        "documentation": {
+            "project_structure": "See /docs/PROJECT_STRUCTURE.md",
+            "python_environments": "See /docs/PYTHON_ENVIRONMENTS.md"
         }
     })
 
