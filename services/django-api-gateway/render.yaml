@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: moodify-api-gateway
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "./start.sh"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_MICROSERVICE_URL
+        value: "https://moodify-tk9p.onrender.com/"  # Update with actual Flask service URL
+      - key: EXPRESS_MICROSERVICE_URL  
+        value: "https://your-express-service-url.onrender.com"  # Update with actual Express service URL
+      - key: RENDER
+        value: "true"  # Indicates we're running on Render

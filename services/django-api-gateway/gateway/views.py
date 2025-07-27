@@ -21,6 +21,7 @@ def check_service_health(service_url):
     except requests.exceptions.RequestException:
         return False
 
+@api_view(['GET'])
 def health_check(request):
     """Homepage endpoint displaying Django API Gateway information"""
     # Check if request accepts HTML (browser) or JSON (API)
@@ -46,50 +47,47 @@ def health_check(request):
         "current_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    # Return HTML template for browsers, JSON for API clients
-    if 'text/html' in accept_header:
-        return render(request, 'gateway/homepage.html', context)
-    else:
-        # Return JSON response for API clients
-        api_response = {
-            **context,
-            "available_endpoints": {
-                "health_check": {
-                    "path": "/",
-                    "method": "GET",
-                    "description": "Homepage and health status"
-                },
-                "gateway_status": {
-                    "path": "/status/",
-                    "method": "GET", 
-                    "description": "Status of all connected microservices"
-                },
-                "sentiment_analysis": {
-                    "predict": "/sentiment/predict/",
-                    "analyze": "/sentiment/analyze/",
-                    "analyze_light": "/sentiment/analyze-light/",
-                    "moodify": "/sentiment/moodify/"
-                },
-                "express_service": {
-                    "health": "/express/health/"
-                }
+    # For now, always return JSON response since we're deploying as an API
+    # Return JSON response for API clients
+    api_response = {
+        **context,
+        "available_endpoints": {
+            "health_check": {
+                "path": "/",
+                "method": "GET",
+                "description": "Homepage and health status"
             },
-            "microservices": {
-                "flask_microservice": {
-                    "purpose": "Sentiment analysis using VADER, TextBlob, and BERT models",
-                    "endpoints": ["predict", "analyze", "analyze-light", "moodify"]
-                },
-                "express_microservice": {
-                    "purpose": "Planned for additional functionality",
-                    "status": "In development"
-                }
+            "gateway_status": {
+                "path": "/status/",
+                "method": "GET", 
+                "description": "Status of all connected microservices"
             },
-            "documentation": {
-                "project_structure": "See /docs/PROJECT_STRUCTURE.md",
-                "python_environments": "See /docs/PYTHON_ENVIRONMENTS.md"
+            "sentiment_analysis": {
+                "predict": "/sentiment/predict/",
+                "analyze": "/sentiment/analyze/",
+                "analyze_light": "/sentiment/analyze-light/",
+                "moodify": "/sentiment/moodify/"
+            },
+            "express_service": {
+                "health": "/express/health/"
             }
+        },
+        "microservices": {
+            "flask_microservice": {
+                "purpose": "Sentiment analysis using VADER, TextBlob, and BERT models",
+                "endpoints": ["predict", "analyze", "analyze-light", "moodify"]
+            },
+            "express_microservice": {
+                "purpose": "Planned for additional functionality",
+                "status": "In development"
+            }
+        },
+        "documentation": {
+            "project_structure": "See /docs/PROJECT_STRUCTURE.md",
+            "python_environments": "See /docs/PYTHON_ENVIRONMENTS.md"
         }
-        return Response(api_response)
+    }
+    return Response(api_response)
 
 @api_view(['GET'])
 def gateway_status(request):
