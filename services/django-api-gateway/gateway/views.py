@@ -2,9 +2,11 @@
 
 import json
 import logging
+from datetime import datetime
 
 import requests
 from django.conf import settings
+from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -19,10 +21,12 @@ def check_service_health(service_url):
     except requests.exceptions.RequestException:
         return False
 
-@api_view(['GET'])
 def health_check(request):
     """Homepage endpoint displaying Django API Gateway information"""
-    return Response({
+    # Check if request accepts HTML (browser) or JSON (API)
+    accept_header = request.META.get('HTTP_ACCEPT', '')
+    
+    context = {
         "app_name": "Moodify API Gateway",
         "version": "1.0.0",
         "status": "healthy",
@@ -39,42 +43,53 @@ def health_check(request):
             "pattern": "API Gateway",
             "connected_services": ["Flask Microservice", "Express Microservice (planned)"]
         },
-        "available_endpoints": {
-            "health_check": {
-                "path": "/",
-                "method": "GET",
-                "description": "Homepage and health status"
+        "current_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    # Return HTML template for browsers, JSON for API clients
+    if 'text/html' in accept_header:
+        return render(request, 'gateway/homepage.html', context)
+    else:
+        # Return JSON response for API clients
+        api_response = {
+            **context,
+            "available_endpoints": {
+                "health_check": {
+                    "path": "/",
+                    "method": "GET",
+                    "description": "Homepage and health status"
+                },
+                "gateway_status": {
+                    "path": "/status/",
+                    "method": "GET", 
+                    "description": "Status of all connected microservices"
+                },
+                "sentiment_analysis": {
+                    "predict": "/sentiment/predict/",
+                    "analyze": "/sentiment/analyze/",
+                    "analyze_light": "/sentiment/analyze-light/",
+                    "moodify": "/sentiment/moodify/"
+                },
+                "express_service": {
+                    "health": "/express/health/"
+                }
             },
-            "gateway_status": {
-                "path": "/status/",
-                "method": "GET", 
-                "description": "Status of all connected microservices"
+            "microservices": {
+                "flask_microservice": {
+                    "purpose": "Sentiment analysis using VADER, TextBlob, and BERT models",
+                    "endpoints": ["predict", "analyze", "analyze-light", "moodify"]
+                },
+                "express_microservice": {
+                    "purpose": "Planned for additional functionality",
+                    "status": "In development"
+                }
             },
-            "sentiment_analysis": {
-                "predict": "/sentiment/predict/",
-                "analyze": "/sentiment/analyze/",
-                "analyze_light": "/sentiment/analyze-light/",
-                "moodify": "/sentiment/moodify/"
-            },
-            "express_service": {
-                "health": "/express/health/"
+            "documentation": {
+                "project_structure": "See /docs/PROJECT_STRUCTURE.md",
+                "python_environments": "See /docs/PYTHON_ENVIRONMENTS.md"
             }
-        },
-        "microservices": {
-            "flask_microservice": {
-                "purpose": "Sentiment analysis using VADER, TextBlob, and BERT models",
-                "endpoints": ["predict", "analyze", "analyze-light", "moodify"]
-            },
-            "express_microservice": {
-                "purpose": "Planned for additional functionality",
-                "status": "In development"
-            }
-        },
-        "documentation": {
-            "project_structure": "See /docs/PROJECT_STRUCTURE.md",
-            "python_environments": "See /docs/PYTHON_ENVIRONMENTS.md"
         }
-    })
+        return Response(api_response)
 
 @api_view(['GET'])
 def gateway_status(request):
